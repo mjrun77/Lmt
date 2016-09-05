@@ -1,5 +1,6 @@
 package com.test.win.myapplication.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -9,11 +10,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.speech.RecognizerIntent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -24,7 +27,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.test.win.myapplication.R;
 import com.test.win.myapplication.adapters.ViewPagerAdapter;
@@ -37,6 +43,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+
+import br.com.mauker.materialsearchview.MaterialSearchView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -45,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private ImageButton a;
+    private MaterialSearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +62,15 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.nav_photo);
+
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
 
         a = (ImageButton)findViewById(R.id.a);
         a.setOnClickListener(new View.OnClickListener() {
@@ -61,8 +80,7 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-        viewPager = (ViewPager)findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -80,24 +98,92 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        searchView = (MaterialSearchView) findViewById(R.id.search_view);
+
+
+        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+        searchView.setSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewOpened() {
+                // Do something once the view is open.
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                // Do something once the view is closed.
+            }
+        });
+
+        searchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Do something when the suggestion list is clicked.
+                String suggestion = searchView.getSuggestionAtPosition(position);
+
+                searchView.setQuery(suggestion, false);
+            }
+        });
+
+//        searchView.setTintAlpha(200);
+        searchView.adjustTintAlpha(0.8f);
+
+        final Context context = this;
+        searchView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(context, "Long clicked position: " + i, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+
+        searchView.setOnVoiceClickedListener(new MaterialSearchView.OnVoiceClickedListener() {
+            @Override
+            public void onVoiceClicked() {
+                Toast.makeText(context, "Voice clicked!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new FeedPopularFragment(), "Популярное");
-        adapter.addFrag(new FeedInterestingFragment(), "Feed");
+        adapter.addFrag(new FeedPopularFragment(), getResources().getString(R.string.feedPopularFragment));
+        adapter.addFrag(new FeedInterestingFragment(), getResources().getString(R.string.feedInterestingFragment));
         adapter.addFrag(new FeedNewFragment(), getResources().getString(R.string.feedNewFragment));
         viewPager.setAdapter(adapter);
     }
 
     @Override
     public void onBackPressed() {
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+
+
         } else {
             super.onBackPressed();
         }
+
+        if (searchView.isOpen()) {
+            // Close the search on the back button press.
+            searchView.closeSearch();
+        } else {
+            super.onBackPressed();
+        }
+
     }
 
     @Override
@@ -109,15 +195,17 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()){
+            case R.id.action_bell:
+                Toast.makeText(this, "Soon", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.action_search:
+                searchView.openSearch();
+                break;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -173,52 +261,32 @@ public class MainActivity extends AppCompatActivity
 
     private void selectImage() {
 
-
-
         final CharSequence[] options = { "Сфотографировать", "Выбрать из галереи","Отмена" };
 
-
-
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-
         builder.setTitle("Добавить фото!");
-
         builder.setItems(options, new DialogInterface.OnClickListener() {
 
             @Override
 
             public void onClick(DialogInterface dialog, int item) {
 
-                if (options[item].equals("Сфотографировать"))
-
-                {
-
+                if (options[item].equals("Сфотографировать")) {
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
                     File f = new File(android.os.Environment.getExternalStorageDirectory(), "temp.jpg");
-
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
                     //pic = f;
-
                     startActivityForResult(intent, 1);
-
 
                 }
 
-                else if (options[item].equals("Выбрать из галереи"))
-
-                {
-
+                else if (options[item].equals("Выбрать из галереи")) {
                     Intent intent = new   Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
                     startActivityForResult(intent, 2);
-
-
 
                 }
 
                 else if (options[item].equals("Отмена")) {
-
                     dialog.dismiss();
 
                 }
@@ -231,13 +299,38 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        searchView.clearSuggestions();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        searchView.activityResumed();
+        String[] arr = getResources().getStringArray(R.array.query_suggestions);
+
+        searchView.addSuggestions(arr);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//search
+        if (requestCode == MaterialSearchView.REQUEST_VOICE && resultCode == RESULT_OK) {
+            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if (matches != null && matches.size() > 0) {
+                String searchWrd = matches.get(0);
+                if (!TextUtils.isEmpty(searchWrd)) {
+                    searchView.setQuery(searchWrd, false);
+                }
+            }
 
+            return;
+        }
         super.onActivityResult(requestCode, resultCode, data);
 
+        //for photos
         if (resultCode == RESULT_OK) {
 
             if (requestCode == 1) {

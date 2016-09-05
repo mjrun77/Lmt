@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Lmt</string>
+    <string name="app_name">Look</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -14,4 +14,5 @@
     <string name="nav_contacts">Контакты</string>
     <string name="nav_settings">Настройки</string>
     <string name="nav_logout">Выход</string>
+    <string name="action_bell">Notifications</string>
 </resources>
