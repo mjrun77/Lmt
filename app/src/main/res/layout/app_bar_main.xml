@@ -35,6 +35,10 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <include
+        layout="@layout/content_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 
     <android.support.design.widget.FloatingActionButton
@@ -43,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        app:srcCompat="@mipmap/ic_camera" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"

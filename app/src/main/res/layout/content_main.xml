@@ -13,5 +13,11 @@
     tools:context="com.test.win.myapplication.activities.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
+    <ImageButton
+        android:id="@+id/a"
+        android:layout_width="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_height="300dp" />
+
 
 </RelativeLayout>
