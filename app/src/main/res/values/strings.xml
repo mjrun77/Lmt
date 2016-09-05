@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Lmt</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="feedPopularFragment">Популярное</string>
+    <string name="feedInterestingFragment">Интересное</string>
+    <string name="feedNewFragment">Новое</string>
+    <string name="nav_photo">Фото</string>
+    <string name="nav_countries">Страны</string>
+    <string name="nav_interests">Интересы</string>
+    <string name="nav_contacts">Контакты</string>
+    <string name="nav_settings">Настройки</string>
+    <string name="nav_logout">Выход</string>
+</resources>
